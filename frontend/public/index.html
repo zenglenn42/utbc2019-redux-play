@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <!--
+      manifest.json provides metadata used when your web app is installed on a
+      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
+    -->
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <script src="https://unpkg.com/redux@4.0.3/dist/redux.js"></script>
+
+    <title>React App</title>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+
+    <script>
+      // Define redux actions
+
+      function addColor(value) {
+        return {
+          type: "ADD",
+          color: value
+        };
+      }
+
+      function removeColor(value) {
+        return {
+          type: "REMOVE",
+          color: value
+        };
+      }
+
+      // Define redux reducer
+
+      function stateReducer(state, action) {
+        if (state === undefined) {
+          state = [];
+        }
+
+        switch (action.type) {
+          case "ADD":
+            return state.concat(action.color);
+            break;
+
+          case "REMOVE":
+            return state.filter(color => {
+              return color !== action.color ? true : false;
+            });
+            break;
+
+          default:
+            return state;
+        }
+      }
+
+      var store = Redux.createStore(stateReducer);
+
+      store.dispatch(addColor("blue"));
+      store.dispatch(addColor("red"));
+      store.dispatch(addColor("white"));
+      console.log(store.getState());
+      store.dispatch(removeColor("red"));
+      console.log(store.getState());
+    </script>
+  </body>
+</html>
