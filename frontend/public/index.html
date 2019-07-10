@@ -19,20 +19,66 @@
     <div id="root"></div>
 
     <script>
+      // Here we use redux to model the adding and deleting items of varying
+      // quantity from a shopping cart.  An item in our cart is modeled with
+      // an object:
+      //
+      // item = { productName: "bread", quantity: 1 }
+
       // Define redux actions
 
-      function addColor(value) {
+      function addItem(anItem) {
         return {
           type: "ADD",
-          color: value
+          item: anItem
         };
       }
 
-      function removeColor(value) {
+      function removeItem(anItem) {
         return {
           type: "REMOVE",
-          color: value
+          item: anItem
         };
+      }
+
+      // Reducer utilities
+
+      function includesItem(state, item) {
+        return (
+          state.filter(stateItem => {
+            return stateItem.productName === item.productName;
+          }).length > 0
+        );
+      }
+
+      function increaseQuantity(state, item) {
+        return state.map(stateItem => {
+          if (stateItem.productName === item.productName) {
+            return {
+              productName: stateItem.productName,
+              quantity: stateItem.quantity + item.quantity
+            };
+          } else {
+            return stateItem;
+          }
+        });
+      }
+
+      function decreaseQuantity(state, item) {
+        return state
+          .map(stateItem => {
+            if (stateItem.productName === item.productName) {
+              return {
+                productName: stateItem.productName,
+                quantity: Math.max(stateItem.quantity - item.quantity, 0)
+              };
+            } else {
+              return stateItem;
+            }
+          })
+          .filter(stateItem => {
+            return stateItem.quantity > 0;
+          });
       }
 
       // Define redux reducer
@@ -44,13 +90,19 @@
 
         switch (action.type) {
           case "ADD":
-            return state.concat(action.color);
+            if (includesItem(state, action.item)) {
+              return increaseQuantity(state, action.item);
+            } else {
+              return state.concat(action.item);
+            }
             break;
 
           case "REMOVE":
-            return state.filter(color => {
-              return color !== action.color ? true : false;
-            });
+            if (includesItem(state, action.item)) {
+              return decreaseQuantity(state, action.item);
+            } else {
+              return state;
+            }
             break;
 
           default:
@@ -58,14 +110,24 @@
         }
       }
 
-      var store = Redux.createStore(stateReducer);
+      var cart = Redux.createStore(stateReducer);
 
-      store.dispatch(addColor("blue"));
-      store.dispatch(addColor("red"));
-      store.dispatch(addColor("white"));
-      console.log(store.getState());
-      store.dispatch(removeColor("red"));
-      console.log(store.getState());
+      cart.dispatch(addItem({ productName: "bread", quantity: 1 }));
+      console.log(cart.getState());
+
+      cart.dispatch(addItem({ productName: "jelly", quantity: 1 }));
+      cart.dispatch(addItem({ productName: "bread", quantity: 1 }));
+      console.log(cart.getState());
+
+      cart.dispatch(removeItem({ productName: "bread", quantity: 1 }));
+      console.log(cart.getState());
+
+      cart.dispatch(removeItem({ productName: "bogus", quantity: 3 }));
+      cart.dispatch(removeItem({ productName: "bread", quantity: 2 }));
+      console.log(cart.getState());
+
+      cart.dispatch(removeItem({ productName: "jelly", quantity: 2 }));
+      console.log(cart.getState());
     </script>
   </body>
 </html>
