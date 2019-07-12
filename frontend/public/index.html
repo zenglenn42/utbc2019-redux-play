@@ -110,24 +110,37 @@
         }
       }
 
+
+      // Define container for our application state in 
+      // a shopping cart.
+
       var cart = Redux.createStore(stateReducer);
 
-      cart.dispatch(addItem({ productName: "bread", quantity: 1 }));
-      console.log(cart.getState());
+      // Subscribe to changes of state.
 
+      cart.subscribe(render);
+      function render() {
+         console.log("Cart:", cart.getState());
+      }
+
+      // Add stuff.
+
+      cart.dispatch(addItem({ productName: "bread", quantity: 2 }));
       cart.dispatch(addItem({ productName: "jelly", quantity: 1 }));
-      cart.dispatch(addItem({ productName: "bread", quantity: 1 }));
-      console.log(cart.getState());
+
+      // Remove stuff.
 
       cart.dispatch(removeItem({ productName: "bread", quantity: 1 }));
-      console.log(cart.getState());
 
+      // Try to remove something not in the cart.
       cart.dispatch(removeItem({ productName: "bogus", quantity: 3 }));
-      cart.dispatch(removeItem({ productName: "bread", quantity: 2 }));
-      console.log(cart.getState());
 
-      cart.dispatch(removeItem({ productName: "jelly", quantity: 2 }));
-      console.log(cart.getState());
+      // Try to remove too much.
+      cart.dispatch(removeItem({ productName: "bread", quantity: 2 }));
+
+      // Cart should be empty.
+      cart.dispatch(removeItem({ productName: "jelly", quantity: 1 }));
+
     </script>
   </body>
 </html>
